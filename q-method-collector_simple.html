@@ -156,13 +156,139 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
   .pile-area { max-height: 20vh; }
   .respondent-header { padding: 8px 10px; margin-bottom: 6px; }
 }
+
+/* ===== ADMIN LANG TOGGLE ===== */
+.admin-lang-toggle { display: flex; gap: 0; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; }
+.admin-lang-btn { background: #fff; color: #999; border: none; padding: 5px 12px; font-size: 0.7rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.03em; transition: all 0.15s; border-radius: 0; font-family: 'Inter', sans-serif; }
+.admin-lang-btn:hover { color: #111; background: #f5f5f5; }
+.admin-lang-btn.active { background: #111; color: #fff; }
+
+/* ===== HOME PAGE ===== */
+.home-topbar { background: #111; color: #fff; padding: 0 32px; height: 56px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
+.home-topbar .home-logo { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase; }
+.home-topbar .home-nav { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.home-topbar .lang-toggle { display: flex; gap: 0; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden; }
+.home-topbar .lang-toggle button { background: transparent; color: rgba(255,255,255,0.6); border: none; padding: 6px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.15s; border-radius: 0; }
+.home-topbar .lang-toggle button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.home-topbar .lang-toggle button.active { background: #fff; color: #111; }
+.home-signin-btn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 7px 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.15s; border-radius: 4px; }
+.home-signin-btn:hover { background: #fff; color: #111; }
+.home-hero { text-align: center; padding: 80px 24px 48px; max-width: 780px; margin: 0 auto; }
+.home-hero h1 { font-size: 2.8rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 16px; text-transform: uppercase; }
+.home-hero .subtitle { color: #888; font-size: 1rem; letter-spacing: 0.02em; margin-bottom: 0; text-transform: uppercase; }
+.home-section { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; }
+.home-section h2 { font-size: 1.3rem; font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 24px; text-align: center; }
+.home-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+.home-card { border: 1px solid #e0e0e0; padding: 28px 24px; text-align: center; }
+.home-card .card-icon { font-size: 2rem; margin-bottom: 12px; }
+.home-card h3 { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 8px; }
+.home-card p { font-size: 0.85rem; color: #666; line-height: 1.6; }
+.home-steps { max-width: 640px; margin: 0 auto 48px; }
+.home-step { display: flex; gap: 20px; margin-bottom: 24px; align-items: flex-start; }
+.home-step .step-num { font-size: 1.4rem; font-weight: 900; color: #111; min-width: 36px; }
+.home-step .step-content h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+.home-step .step-content p { font-size: 0.85rem; color: #666; line-height: 1.5; }
+.home-cta { text-align: center; padding: 48px 24px 80px; }
+.home-cta button { padding: 16px 48px; font-size: 0.9rem; letter-spacing: 0.05em; }
+.home-footer { text-align: center; padding: 24px; border-top: 1px solid #e0e0e0; font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+@media (max-width: 768px) {
+  .home-cards { grid-template-columns: 1fr; }
+  .home-hero h1 { font-size: 2rem; }
+  .home-hero { padding: 48px 16px 32px; }
+  .home-topbar { padding: 0 16px; }
+}
 </style>
 </head>
 <body>
 
 <div class="site-logo"><img src="download.png" alt="Team Sailers"></div>
 
-<!-- LANDING PAGE -->
+<!-- HOME PAGE -->
+<div id="page-home" class="hidden">
+  <div class="home-topbar">
+    <div class="home-logo">Q Method Collector</div>
+    <div class="home-nav">
+      <div class="lang-toggle">
+        <button id="lang-btn-en" class="active" onclick="switchHomeLang('en')">EN</button>
+        <button id="lang-btn-ko" onclick="switchHomeLang('ko')">한국어</button>
+      </div>
+      <button class="home-signin-btn" onclick="showPage('page-login')" id="home-signin-btn">Sign In</button>
+    </div>
+  </div>
+  <div class="home-hero">
+    <h1 id="home-title">Q Method Data Collector</h1>
+    <p class="subtitle" id="home-subtitle">A simple, powerful tool for Q methodology research</p>
+  </div>
+
+  <div class="home-section">
+    <h2 id="home-what-title">What is Q Methodology?</h2>
+    <p style="text-align:center;color:#666;font-size:0.9rem;line-height:1.7;max-width:700px;margin:0 auto 32px" id="home-what-desc">Q methodology is a research approach that explores not "how many people agree," but rather "what different perspectives do people hold on this topic?" It is a mixed-methods approach that combines the rigor of statistical analysis with the depth of qualitative research.</p>
+    <div class="home-cards">
+      <div class="home-card">
+        <div class="card-icon">💬</div>
+        <h3 id="home-card1-title">Prepare Q-Statements</h3>
+        <p id="home-card1-desc">The researcher prepares a set of statements on a specific topic. The number of statements depends on the Q structure you define (e.g., -3 to +3), and typically ranges from 16 to 23. These statements can be drawn from interviews, literature reviews, or other relevant sources.</p>
+      </div>
+      <div class="home-card">
+        <div class="card-icon">📊</div>
+        <h3 id="home-card2-title">Participants Sort (Q-Sorting)</h3>
+        <p id="home-card2-desc">Participants read each statement and place it on a distribution grid, ranging from "relatively most disagree" to "relatively most agree." This process reveals not simply whether participants agree or disagree, but which statements are relatively more important to them.</p>
+      </div>
+      <div class="home-card">
+        <div class="card-icon">🔍</div>
+        <h3 id="home-card3-title">Find Shared Viewpoints</h3>
+        <p id="home-card3-desc">Through data analysis, the researcher identifies groups of people who sorted the statements in similar ways. Each group represents a distinct viewpoint, and meaningful patterns can emerge even from small studies of 15 to 30 participants.</p>
+      </div>
+    </div>
+
+    <h2 id="home-how-title">How to Use This Tool</h2>
+    <p style="text-align:center;color:#666;font-size:0.9rem;line-height:1.7;max-width:700px;margin:0 auto 32px" id="home-how-desc">This tool lets you handle the entire Q methodology data collection process online, without the hassle of paper cards or face-to-face sessions.</p>
+    <div class="home-steps">
+      <div class="home-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3 id="home-step1-title">Sign In &amp; Create a Study</h3>
+          <p id="home-step1-desc">Click "Sign In" at the top right to create a free researcher account. Then click "+ New Study" to begin setting up a new study.</p>
+        </div>
+      </div>
+      <div class="home-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3 id="home-step2-title">Set Up Your Q-Sort</h3>
+          <p id="home-step2-desc">Follow the 5-step wizard to enter your project name, define the score distribution (e.g., -4 to +4), and input your statements. The distribution grid should form an inverted triangle shape, widest in the center and narrowing toward both ends. You can also add demographic questions for participants if needed.</p>
+        </div>
+      </div>
+      <div class="home-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3 id="home-step3-title">Share Links with Participants</h3>
+          <p id="home-step3-desc">Copy the unique links generated by the system and send them via email or messaging apps. Participants can join from any device, including PCs, tablets, and smartphones, anytime and anywhere.</p>
+        </div>
+      </div>
+      <div class="home-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3 id="home-step4-title">Participants Complete the Sort</h3>
+          <p id="home-step4-desc">Participants first do a quick pre-sort into three categories (agree / neutral / disagree), then drag and drop cards to fill in the grid. The interface supports 8 languages and offers convenient swipe gestures on mobile.</p>
+        </div>
+      </div>
+      <div class="home-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <h3 id="home-step5-title">Download &amp; Analyze</h3>
+          <p id="home-step5-desc">Monitor response status in real time on your dashboard. Once collection is complete, download the data as a KenQ-compatible XLSX file and start factor analysis right away, with no manual data entry required. (You can use it directly with KenQ Data Analysis, a web-based analysis tool.)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-cta">
+    <button class="btn-primary" onclick="showPage('page-login')" id="home-cta-btn">Get Started</button>
+  </div>
+  <div class="home-footer" id="home-footer">KenQ-compatible · Open source Q methodology data collection</div>
+</div>
+
+<!-- LANDING PAGE (legacy) -->
 <div id="page-landing" class="container landing hidden">
   <h1>Q Method Data Collector</h1>
   <p>KenQ-compatible Q methodology data collection tool</p>
@@ -193,12 +319,18 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
 
 <!-- STUDY LIST PAGE -->
 <div id="page-studies" class="container hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
     <h1 style="margin:0">My Studies</h1>
     <div style="display:flex;gap:8px;align-items:center">
+      <div class="admin-lang-toggle">
+        <button class="admin-lang-btn" id="studies-lang-en" onclick="setAdminLang('en')">EN</button>
+        <button class="admin-lang-btn" id="studies-lang-ko" onclick="setAdminLang('ko')">한국어</button>
+      </div>
       <span id="logged-in-user" style="font-size:0.85rem;color:#888"></span>
       <button class="btn-secondary" onclick="doLogout()">Logout</button>
     </div>
+  </div>
+  <div id="admin-studies-guide" style="background:#f7f9fb;border:1px solid #e0e0e0;padding:16px 20px;margin-bottom:20px;font-size:0.85rem;color:#555;line-height:1.7">
   </div>
   <button class="btn-primary" style="margin-bottom:20px" onclick="createNewStudy()">+ New Study</button>
   <div id="study-list"></div>
@@ -208,15 +340,24 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
 <div id="page-admin" class="container hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
     <h1 style="margin:0">Q Method — Admin</h1>
-    <button class="btn-secondary" onclick="backToStudies()">← Back to Studies</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="admin-lang-toggle">
+        <button class="admin-lang-btn" id="admin-lang-en" onclick="setAdminLang('en')">EN</button>
+        <button class="admin-lang-btn" id="admin-lang-ko" onclick="setAdminLang('ko')">한국어</button>
+      </div>
+      <button class="btn-secondary" onclick="backToStudies()">← Back to Studies</button>
+    </div>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchAdminTab('setup')">Study Setup</div>
     <div class="tab" onclick="switchAdminTab('data')">Data Management</div>
   </div>
+  <p id="admin-tab-guide" style="font-size:0.8rem;color:#aaa;margin-bottom:16px"></p>
 
   <!-- DASHBOARD (shown when study has config) -->
   <div id="admin-dashboard" class="hidden">
+    <div id="admin-dashboard-guide" style="background:#f7f9fb;border:1px solid #e0e0e0;padding:14px 20px;margin-bottom:16px;font-size:0.85rem;color:#555;line-height:1.7">
+    </div>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
         <h2 style="margin:0" id="dash-title">Study Summary</h2>
@@ -226,6 +367,7 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
     </div>
     <div class="card" style="margin-top:16px">
       <h2>Respondent Links</h2>
+      <p id="admin-links-guide" style="font-size:0.8rem;color:#999;margin-bottom:12px"></p>
       <div class="inline-group" style="margin-bottom:12px;max-width:400px">
         <div>
           <label for="dash-count">Number of Participants</label>
@@ -260,7 +402,7 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
     <!-- Step 1: Project -->
     <div id="step-1" class="card">
       <h2>Step 1: Project Setup</h2>
-      <p style="font-size:0.8rem;color:#999;margin-bottom:12px">프로젝트 이름과 참가자 ID 접두사를 설정합니다. 접두사는 참가자 링크 생성에 사용됩니다.</p>
+      <p id="admin-step1-guide" style="font-size:0.8rem;color:#999;margin-bottom:12px"></p>
       <div style="margin-bottom:12px">
         <label for="project-name">Project Name</label>
         <input id="project-name" placeholder="My Q Study">
@@ -277,17 +419,17 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
       </div>
       <div style="margin-bottom:12px">
         <label for="study-description">Study Description <span style="font-size:0.75rem;color:#999">(optional)</span></label>
-        <p style="font-size:0.75rem;color:#999;margin:2px 0 6px">응답자에게 보여줄 연구 설명을 입력하세요. 첫 화면에 표시됩니다.</p>
+        <p id="admin-step1-desc-hint" style="font-size:0.75rem;color:#999;margin:2px 0 6px"></p>
         <textarea id="study-description" rows="3" placeholder="e.g., This study explores participants' views on community development..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9rem;resize:vertical"></textarea>
       </div>
       <div style="margin-bottom:12px">
         <label for="central-question">Q-Sort Central Question <span style="font-size:0.75rem;color:#999">(optional)</span></label>
-        <p style="font-size:0.75rem;color:#999;margin:2px 0 6px">Q 분류 중 화면 상단에 계속 표시될 중심 질문을 입력하세요.</p>
+        <p id="admin-step1-cq-hint" style="font-size:0.75rem;color:#999;margin:2px 0 6px"></p>
         <input id="central-question" placeholder="e.g., What do you think constitutes good community development?">
       </div>
       <div style="margin-bottom:12px">
         <label for="confidentiality-notice">Confidentiality / Instructions Notice <span style="font-size:0.75rem;color:#999">(optional)</span></label>
-        <p style="font-size:0.75rem;color:#999;margin:2px 0 6px">유의사항이나 기밀 관련 안내문을 입력하세요. 첫 화면에 표시됩니다.</p>
+        <p id="admin-step1-conf-hint" style="font-size:0.75rem;color:#999;margin:2px 0 6px"></p>
         <textarea id="confidentiality-notice" rows="3" placeholder="e.g., Your responses are confidential and will only be used for research purposes..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9rem;resize:vertical"></textarea>
       </div>
       <div style="text-align:right;margin-top:16px">
@@ -298,21 +440,60 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
     <!-- Step 2: Pattern -->
     <div id="step-2" class="card hidden">
       <h2>Step 2: Distribution Pattern</h2>
-      <p style="font-size:0.8rem;color:#999;margin-bottom:12px">Q 분류에서 사용할 점수 범위와 각 점수별 카드 수를 설정합니다. +/- 버튼으로 조절하세요.</p>
-      <div class="inline-group" style="margin-bottom:12px">
-        <div>
-          <label for="min-score">Min Score</label>
-          <input id="min-score" type="number" value="-4">
-        </div>
-        <div>
-          <label for="max-score">Max Score</label>
-          <input id="max-score" type="number" value="4">
-        </div>
-        <div style="flex:0">
-          <label>&nbsp;</label>
-          <button class="btn-primary" onclick="buildPattern()">Build</button>
+      <p id="admin-step2-guide" style="font-size:0.8rem;color:#999;margin-bottom:16px"></p>
+
+      <!-- Preset selection -->
+      <div id="pattern-presets" style="margin-bottom:20px">
+        <label id="admin-step2-preset-label" style="margin-bottom:10px;display:block"></label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button class="btn-secondary preset-btn" onclick="applyPreset('4_27')" id="preset-4_27" style="flex:1;min-width:140px;text-align:center;padding:12px 8px">
+            <div style="font-weight:700;font-size:0.9rem">-4 ~ +4</div>
+            <div style="font-size:0.75rem;color:#888;margin-top:2px">27 cards</div>
+            <div style="font-size:0.7rem;color:#aaa">2-2-3-4-5-4-3-2-2</div>
+          </button>
+          <button class="btn-secondary preset-btn" onclick="applyPreset('4_25')" id="preset-4_25" style="flex:1;min-width:140px;text-align:center;padding:12px 8px">
+            <div style="font-weight:700;font-size:0.9rem">-4 ~ +4</div>
+            <div style="font-size:0.75rem;color:#888;margin-top:2px">25 cards</div>
+            <div style="font-size:0.7rem;color:#aaa">1-2-3-4-5-4-3-2-1</div>
+          </button>
+          <button class="btn-secondary preset-btn" onclick="applyPreset('3_23')" id="preset-3_23" style="flex:1;min-width:140px;text-align:center;padding:12px 8px">
+            <div style="font-weight:700;font-size:0.9rem">-3 ~ +3</div>
+            <div style="font-size:0.75rem;color:#888;margin-top:2px">23 cards</div>
+            <div style="font-size:0.7rem;color:#aaa">2-3-4-5-4-3-2</div>
+          </button>
+          <button class="btn-secondary preset-btn" onclick="applyPreset('3_16')" id="preset-3_16" style="flex:1;min-width:140px;text-align:center;padding:12px 8px">
+            <div style="font-weight:700;font-size:0.9rem">-3 ~ +3</div>
+            <div style="font-size:0.75rem;color:#888;margin-top:2px">16 cards</div>
+            <div style="font-size:0.7rem;color:#aaa">1-2-3-4-3-2-1</div>
+          </button>
+          <button class="btn-secondary preset-btn" onclick="applyPreset('custom')" id="preset-custom" style="flex:1;min-width:140px;text-align:center;padding:12px 8px">
+            <div style="font-weight:700;font-size:0.9rem">Custom</div>
+            <div id="preset-custom-sub" style="font-size:0.75rem;color:#888;margin-top:2px"></div>
+            <div id="preset-custom-desc" style="font-size:0.7rem;color:#aaa"></div>
+          </button>
         </div>
       </div>
+
+      <!-- Custom controls (hidden by default) -->
+      <div id="pattern-custom-controls" class="hidden">
+        <div id="admin-step2-custom-warning" style="background:#fffbe6;border:1px solid #f0e0a0;padding:10px 14px;margin-bottom:12px;font-size:0.8rem;color:#886;line-height:1.6">
+        </div>
+        <div class="inline-group" style="margin-bottom:12px">
+          <div>
+            <label for="min-score">Min Score</label>
+            <input id="min-score" type="number" value="-4">
+          </div>
+          <div>
+            <label for="max-score">Max Score</label>
+            <input id="max-score" type="number" value="4">
+          </div>
+          <div style="flex:0">
+            <label>&nbsp;</label>
+            <button class="btn-primary" onclick="buildPattern()">Build</button>
+          </div>
+        </div>
+      </div>
+
       <div id="pattern-designer"></div>
       <div id="pattern-total" style="margin-top:8px;font-weight:600"></div>
       <div id="pattern-warning" class="warning hidden"></div>
@@ -325,7 +506,7 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
     <!-- Step 3: Statements -->
     <div id="step-3" class="card hidden">
       <h2>Step 3: Statements</h2>
-      <p style="font-size:0.9rem;color:#666;margin-bottom:8px">Enter one statement per line, or add individually below.<br><span style="color:#bbb">한 줄에 하나씩 진술문을 입력하거나, 아래에서 개별 추가할 수 있습니다.</span></p>
+      <p id="admin-step3-guide" style="font-size:0.8rem;color:#999;margin-bottom:8px"></p>
       <textarea id="stmt-bulk" rows="6" placeholder="Statement 1&#10;Statement 2&#10;Statement 3"></textarea>
       <button class="btn-primary" style="margin-top:8px" onclick="loadBulkStatements()">Load Statements</button>
       <div style="margin-top:12px">
@@ -346,7 +527,7 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
     <!-- Step 4: Demographic Questions -->
     <div id="step-4" class="card hidden">
       <h2>Step 4: Respondent Info Questions</h2>
-      <p style="font-size:0.9rem;color:#666;margin-bottom:12px">Add demographic or personal info questions that respondents will answer before sorting. (e.g. Name, Age, Gender)<br><span style="color:#bbb">응답자가 분류 전에 답할 인구통계 질문을 추가합니다. (선택사항)</span></p>
+      <p id="admin-step4-guide" style="font-size:0.8rem;color:#999;margin-bottom:12px"></p>
 
       <div style="background:#f9f9f9;padding:16px;border-radius:6px;margin-bottom:12px">
         <div class="inline-group" style="margin-bottom:8px">
@@ -388,7 +569,7 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
     <!-- Step 5: Save -->
     <div id="step-5" class="card hidden">
       <h2>Step 5: Review & Save</h2>
-      <p>Review your configuration and save.<br><span style="color:#bbb">설정을 확인하고 저장합니다.</span></p>
+      <p id="admin-step5-guide" style="font-size:0.8rem;color:#999;margin-bottom:8px"></p>
       <div id="config-summary" style="margin:12px 0;font-size:0.9rem"></div>
       <div style="display:flex;justify-content:space-between;margin-top:16px">
         <button class="btn-secondary" onclick="adminNext(4)">Back</button>
@@ -399,6 +580,8 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
 
   <!-- DATA TAB -->
   <div id="admin-data" class="hidden">
+    <div id="admin-data-guide" style="background:#f7f9fb;border:1px solid #e0e0e0;padding:14px 20px;margin-bottom:16px;font-size:0.85rem;color:#555;line-height:1.7">
+    </div>
     <div class="card">
       <h2>Collected Responses</h2>
       <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
@@ -423,6 +606,7 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
         <label id="lang-label" style="font-size:0.75rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Language</label>
         <select id="lang-select" onchange="switchLanguage(this.value)" style="width:auto;min-width:160px;padding:8px 12px;font-size:0.9rem;margin-top:4px">
           <option value="en">English</option>
+          <option value="ko">한국어 (Korean)</option>
           <option value="km">ភាសាខ្មែរ (Khmer)</option>
           <option value="tl">Filipino</option>
           <option value="id">Bahasa Indonesia</option>
@@ -614,7 +798,7 @@ async function doRegister() {
 
 function doLogout() {
   clearSession();
-  showPage('page-login');
+  showPage('page-home');
 }
 
 // ============== STUDY LIST ==============
@@ -694,13 +878,15 @@ function goTo(page) {
 
 async function initApp() {
   loadSession();
+  // Apply saved language to all pages
+  switchHomeLang(adminLang);
   const parts = parsePath();
 
   if (parts[0] === 'admin') {
     if (currentUser) {
       showStudies();
     } else {
-      showPage('page-login');
+      showPage('page-home');
     }
   } else if (parts[0] === 'sort' && parts[1]) {
     currentStudyId = parts[1];
@@ -708,12 +894,12 @@ async function initApp() {
     showPage('page-respond');
     await loadRespondentConfig(urlPid);
   } else {
-    showPage('page-landing');
+    showPage('page-home');
   }
 }
 
 function showPage(id) {
-  document.querySelectorAll('#page-landing,#page-login,#page-studies,#page-admin,#page-respond').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('#page-home,#page-landing,#page-login,#page-studies,#page-admin,#page-respond').forEach(el => el.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
@@ -760,7 +946,22 @@ async function loadAdminState() {
     studyHasConfig = false;
     showSetupMode();
   }
-  buildPattern();
+  // Detect if loaded pattern matches a preset
+  if (studyHasConfig && Object.keys(pattern).length) {
+    let matched = false;
+    for (const [key, preset] of Object.entries(PATTERN_PRESETS)) {
+      if (preset.min === patternMin && preset.max === patternMax) {
+        const countsMatch = Object.keys(preset.counts).every(s => pattern[Number(s)] === preset.counts[s]);
+        if (countsMatch) { applyPreset(key); matched = true; break; }
+      }
+    }
+    if (!matched) { applyPreset('custom'); }
+  } else if (!studyHasConfig) {
+    // New study: show presets, no pattern built yet
+    renderPattern(false);
+  } else {
+    buildPattern();
+  }
   renderStatements();
 }
 
@@ -877,39 +1078,48 @@ function adminNext(step) {
 }
 
 // Pattern Designer
-function buildPattern() {
-  patternMin = parseInt(document.getElementById('min-score').value) || -4;
-  patternMax = parseInt(document.getElementById('max-score').value) || 4;
-  if (patternMin >= patternMax) { patternMax = patternMin + 1; document.getElementById('max-score').value = patternMax; }
+// ============== PATTERN PRESETS ==============
+const PATTERN_PRESETS = {
+  '4_27': { min: -4, max: 4, counts: {'-4':2,'-3':2,'-2':3,'-1':4,'0':5,'1':4,'2':3,'3':2,'4':2} },
+  '4_25': { min: -4, max: 4, counts: {'-4':1,'-3':2,'-2':3,'-1':4,'0':5,'1':4,'2':3,'3':2,'4':1} },
+  '3_23': { min: -3, max: 3, counts: {'-3':2,'-2':3,'-1':4,'0':5,'1':4,'2':3,'3':2} },
+  '3_16': { min: -3, max: 3, counts: {'-3':1,'-2':2,'-1':3,'0':4,'1':3,'2':2,'3':1} },
+};
 
-  const container = document.getElementById('pattern-designer');
-  const oldPattern = { ...pattern };
-  pattern = {};
+let currentPreset = null;
 
-  let html = '<div class="pattern-grid">';
-  for (let s = patternMin; s <= patternMax; s++) {
-    const count = oldPattern[s] !== undefined ? oldPattern[s] : (s === patternMin || s === patternMax ? 2 : Math.max(2, 5 - Math.abs(s)));
-    pattern[s] = Math.max(1, count);
-    const color = scoreColor(s, patternMin, patternMax);
-    html += `<div class="pattern-col">
-      <div class="score-label">${s > 0 ? '+' : ''}${s}</div>`;
-    for (let i = 0; i < pattern[s]; i++) {
-      html += `<div class="pattern-cell" style="background:${color}"></div>`;
-    }
-    html += `<div class="count-display" id="pc-${s}">${pattern[s]}</div>
-      <div class="pattern-btns">
-        <button class="btn-secondary" onclick="adjustPattern(${s},-1)">-</button>
-        <button class="btn-secondary" onclick="adjustPattern(${s},1)">+</button>
-      </div>
-    </div>`;
+function applyPreset(presetId) {
+  // Update button styles
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.style.background = '#fff'; btn.style.color = '#111'; btn.style.borderColor = '#ccc';
+  });
+  const activeBtn = document.getElementById('preset-' + presetId);
+  if (activeBtn) { activeBtn.style.background = '#111'; activeBtn.style.color = '#fff'; activeBtn.style.borderColor = '#111'; }
+  currentPreset = presetId;
+
+  const customControls = document.getElementById('pattern-custom-controls');
+
+  if (presetId === 'custom') {
+    customControls.classList.remove('hidden');
+    buildPattern();
+    return;
   }
-  html += '</div>';
-  container.innerHTML = html;
+
+  customControls.classList.add('hidden');
+  const preset = PATTERN_PRESETS[presetId];
+  patternMin = preset.min;
+  patternMax = preset.max;
+  document.getElementById('min-score').value = patternMin;
+  document.getElementById('max-score').value = patternMax;
+  pattern = {};
+  for (let s = patternMin; s <= patternMax; s++) {
+    pattern[s] = preset.counts[String(s)];
+  }
+  renderPattern(false);
   updatePatternTotal();
 }
 
-function adjustPattern(score, delta) {
-  pattern[score] = Math.max(1, (pattern[score] || 1) + delta);
+function renderPattern(showButtons) {
   const container = document.getElementById('pattern-designer');
   let html = '<div class="pattern-grid">';
   for (let s = patternMin; s <= patternMax; s++) {
@@ -918,14 +1128,38 @@ function adjustPattern(score, delta) {
     for (let i = 0; i < pattern[s]; i++) {
       html += `<div class="pattern-cell" style="background:${color}"></div>`;
     }
-    html += `<div class="count-display">${pattern[s]}</div>
-      <div class="pattern-btns">
+    html += `<div class="count-display">${pattern[s]}</div>`;
+    if (showButtons) {
+      html += `<div class="pattern-btns">
         <button class="btn-secondary" onclick="adjustPattern(${s},-1)">-</button>
         <button class="btn-secondary" onclick="adjustPattern(${s},1)">+</button>
-      </div></div>`;
+      </div>`;
+    }
+    html += '</div>';
   }
   html += '</div>';
   container.innerHTML = html;
+}
+
+function buildPattern() {
+  patternMin = parseInt(document.getElementById('min-score').value) || -4;
+  patternMax = parseInt(document.getElementById('max-score').value) || 4;
+  if (patternMin >= patternMax) { patternMax = patternMin + 1; document.getElementById('max-score').value = patternMax; }
+
+  const oldPattern = { ...pattern };
+  pattern = {};
+
+  for (let s = patternMin; s <= patternMax; s++) {
+    const count = oldPattern[s] !== undefined ? oldPattern[s] : (s === patternMin || s === patternMax ? 2 : Math.max(2, 5 - Math.abs(s)));
+    pattern[s] = Math.max(1, count);
+  }
+  renderPattern(true);
+  updatePatternTotal();
+}
+
+function adjustPattern(score, delta) {
+  pattern[score] = Math.max(1, (pattern[score] || 1) + delta);
+  renderPattern(true);
   updatePatternTotal();
 }
 
@@ -1053,15 +1287,28 @@ function renderSummary() {
   const count = parseInt(document.getElementById('participant-count').value) || 1;
   const total = patternTotal();
   const scores = Object.keys(pattern).map(Number).sort((a,b)=>a-b);
+  // Build pattern preview
+  let patternHtml = '<div class="pattern-grid" style="margin:16px 0">';
+  for (let s = scores[0]; s <= scores[scores.length-1]; s++) {
+    const color = scoreColor(s, scores[0], scores[scores.length-1]);
+    patternHtml += `<div class="pattern-col"><div class="score-label">${s > 0 ? '+' : ''}${s}</div>`;
+    for (let i = 0; i < (pattern[s] || 0); i++) {
+      patternHtml += `<div class="pattern-cell" style="background:${color}"></div>`;
+    }
+    patternHtml += `<div class="count-display">${pattern[s] || 0}</div></div>`;
+  }
+  patternHtml += '</div>';
+
   document.getElementById('config-summary').innerHTML =
     `<p><strong>Project:</strong> ${escHtml(name)}</p>
      <p><strong>Prefix:</strong> ${escHtml(prefix)}</p>
      <p><strong>Participants:</strong> ${count}</p>
      <p><strong>Score range:</strong> ${scores[0]} ~ ${scores[scores.length-1]}</p>
-     <p><strong>Pattern total:</strong> ${total}</p>
+     <p><strong>Distribution pattern:</strong> ${scores.map(s => pattern[s]).join('-')} (${total} cards)</p>
+     ${patternHtml}
      <p><strong>Statements:</strong> ${statements.length}</p>
      <p><strong>Info questions:</strong> ${demoQuestions.length}</p>` +
-    (statements.length !== total ? `<div class="warning">Statement count does not match pattern!</div>` : '');
+    (statements.length !== total ? `<div class="warning">Statement count (${statements.length}) does not match pattern (${total})!</div>` : '');
 }
 
 async function saveAndGenerate() {
@@ -1392,6 +1639,38 @@ const LANGS = {
     thankYou: 'Cảm ơn bạn!',
     thankYouMsg: 'Q sort của bạn đã được ghi nhận thành công.',
     language: 'Ngôn ngữ'
+  }},
+  ko: { label: '한국어', strings: {
+    enterPid: '참여자 ID를 입력하여 시작하세요.',
+    pidPlaceholder: '참여자 ID',
+    beginSorting: '분류 시작',
+    noStudy: '연구를 찾을 수 없습니다',
+    noStudyMsg: '연구 관리자에게 먼저 연구를 설정해 달라고 요청하세요.',
+    enterPidError: '참여자 ID를 입력하세요.',
+    pidDuplicate: '이 참여자 ID는 이미 사용되었습니다. 다른 ID를 선택하세요.',
+    respondentInfo: '응답자 정보',
+    respondentInfoDesc: '분류를 시작하기 전에 다음 정보를 입력해 주세요.',
+    continueBtn: '계속',
+    selectDefault: '-- 선택 --',
+    answerRequired: '답변해 주세요:',
+    preSortTitle: '사전 분류: 초기 분류',
+    preSortDesc: '각 진술문을 읽고 동의, 중립, 비동의로 분류하세요.',
+    disagree: '비동의',
+    neutral: '중립',
+    agree: '동의',
+    statementOf: '진술문 {0} / {1}',
+    preSortDone: '사전 분류 완료!',
+    preSortReview: '아래에서 분류 결과를 확인한 후 최종 분류로 진행하세요. 카드는 분류 결과에 따라 색상으로 구분됩니다.',
+    proceedFinal: '최종 분류로 진행',
+    redoPresort: '사전 분류 다시 하기',
+    unsortedCards: '미분류 카드',
+    cardsPlaced: '{0} / {1} 카드 배치됨',
+    submitSort: '분류 제출',
+    placeAllCards: '제출하기 전에 모든 카드를 배치하세요. {0}개 카드가 남았습니다.',
+    submitFailed: '제출 실패:',
+    thankYou: '감사합니다!',
+    thankYouMsg: 'Q 분류가 성공적으로 기록되었습니다.',
+    language: '언어'
   }}
 };
 let currentLang = 'en';
@@ -1402,6 +1681,209 @@ function tFmt(key, ...args) {
   let s = t(key);
   args.forEach((a, i) => { s = s.replace(`{${i}}`, a); });
   return s;
+}
+
+// ============== HOME PAGE LANGUAGE ==============
+const HOME_STRINGS = {
+  en: {
+    signIn: 'Sign In',
+    title: 'Q Method Data Collector',
+    subtitle: 'A simple, powerful tool for Q methodology research',
+    whatTitle: 'What is Q Methodology?',
+    whatDesc: 'Q methodology is a research approach that explores not "how many people agree," but rather "what different perspectives do people hold on this topic?" It is a mixed-methods approach that combines the rigor of statistical analysis with the depth of qualitative research.',
+    card1Title: 'Prepare Q-Statements',
+    card1Desc: 'The researcher prepares a set of statements on a specific topic. The number of statements depends on the Q structure you define (e.g., -3 to +3), and typically ranges from 16 to 23. These statements can be drawn from interviews, literature reviews, or other relevant sources.',
+    card2Title: 'Participants Sort (Q-Sorting)',
+    card2Desc: 'Participants read each statement and place it on a distribution grid, ranging from "relatively most disagree" to "relatively most agree." This process reveals not simply whether participants agree or disagree, but which statements are relatively more important to them.',
+    card3Title: 'Find Shared Viewpoints',
+    card3Desc: 'Through data analysis, the researcher identifies groups of people who sorted the statements in similar ways. Each group represents a distinct viewpoint, and meaningful patterns can emerge even from small studies of 15 to 30 participants.',
+    howTitle: 'How to Use This Tool',
+    howDesc: 'This tool lets you handle the entire Q methodology data collection process online, without the hassle of paper cards or face-to-face sessions.',
+    step1Title: 'Sign In & Create a Study',
+    step1Desc: 'Click "Sign In" at the top right to create a free researcher account. Then click "+ New Study" to begin setting up a new study.',
+    step2Title: 'Set Up Your Q-Sort',
+    step2Desc: 'Follow the 5-step wizard to enter your project name, define the score distribution (e.g., -4 to +4), and input your statements. The distribution grid should form an inverted triangle shape, widest in the center and narrowing toward both ends. You can also add demographic questions for participants if needed.',
+    step3Title: 'Share Links with Participants',
+    step3Desc: 'Copy the unique links generated by the system and send them via email or messaging apps. Participants can join from any device, including PCs, tablets, and smartphones, anytime and anywhere.',
+    step4Title: 'Participants Complete the Sort',
+    step4Desc: 'Participants first do a quick pre-sort into three categories (agree / neutral / disagree), then drag and drop cards to fill in the grid. The interface supports 8 languages and offers convenient swipe gestures on mobile.',
+    step5Title: 'Download & Analyze',
+    step5Desc: 'Monitor response status in real time on your dashboard. Once collection is complete, download the data as a KenQ-compatible XLSX file and start factor analysis right away, with no manual data entry required. (You can use it directly with KenQ Data Analysis, a web-based analysis tool.)',
+    ctaBtn: 'Get Started',
+    footer: 'KenQ-compatible · Open source Q methodology data collection'
+  },
+  ko: {
+    signIn: '로그인',
+    title: 'Q 방법론 데이터 수집 도구',
+    subtitle: 'Q 방법론 연구를 위한 간편하고 강력한 도구',
+    whatTitle: 'Q 방법론이란?',
+    whatDesc: 'Q 방법론은 특정 주제에 대해 "얼마나 많은 사람이 동의하는가"가 아니라, "사람들이 이 주제에 대해 어떤 다양한 관점을 가지고 있는가"를 탐구하는 연구 방법입니다. 통계의 엄밀함과 질적 연구의 깊이를 결합한 혼합 연구 방법론입니다.',
+    card1Title: '진술문(Q-statement) 준비',
+    card1Desc: '연구자가 특정 주제에 대한 문장 세트를 준비합니다. 진술문의 개수는 설정하는 Q 구조(예: -3 ~ +3)에 따라 달라지며, 보통 16~23개 정도로 구성됩니다. 이 문장들은 인터뷰나 문헌 검토 등을 통해 수집할 수 있습니다.',
+    card2Title: '참여자의 분류(Q-sorting)',
+    card2Desc: '참여자는 진술문을 읽고 "상대적으로 가장 동의하지 않음"부터 "상대적으로 가장 동의함"까지 나열된 표(분포 격자) 위에 배치합니다. 이 과정을 통해 단순한 찬반 여부가 아니라, 참여자에게 어떤 문장이 상대적으로 더 중요한지가 명확히 드러납니다.',
+    card3Title: '공유된 관점 발견',
+    card3Desc: '데이터 분석을 통해 진술문을 비슷하게 분류한 사람들의 그룹을 찾습니다. 각 그룹은 고유한 관점을 나타내며, 15~30명 정도의 소규모 연구로도 의미 있는 패턴을 도출할 수 있습니다.',
+    howTitle: '이 도구는 어떻게 사용하나요?',
+    howDesc: '이 도구는 번거로운 종이 카드나 대면 세션 없이, Q 방법론의 데이터 수집 전체를 온라인으로 쉽게 처리할 수 있게 도와줍니다.',
+    step1Title: '로그인 및 연구 생성',
+    step1Desc: '오른쪽 상단의 "로그인"을 클릭하여 무료 연구자 계정을 만드세요. 그다음 "+ New Study"를 눌러 새로운 연구 설정을 시작합니다.',
+    step2Title: 'Q 분류 설정',
+    step2Desc: '5단계 마법사를 따라 프로젝트 이름, 점수 분포(예: -4 ~ +4), 진술문을 차례로 입력하세요. 이때 점수 분포를 나타내는 표의 형태는 가운데가 가장 넓고 양끝으로 갈수록 좁아지는 역삼각형 모양이 되어야 합니다. 필요하다면 참여자를 위한 인구통계 질문도 추가할 수 있습니다.',
+    step3Title: '참여자에게 링크 공유',
+    step3Desc: '시스템이 생성한 고유 링크를 복사해 이메일이나 메신저로 보내세요. 참여자는 PC, 태블릿, 스마트폰 등 기기에 구애받지 않고 언제 어디서나 참여할 수 있습니다.',
+    step4Title: '참여자의 분류 수행',
+    step4Desc: '참여자는 먼저 진술문을 3가지(동의/중립/비동의)로 가분류한 뒤, 카드를 드래그 앤 드롭하여 표를 완성합니다. 8개 국어를 지원하며, 모바일에서는 편리한 스와이프 기능도 사용할 수 있습니다.',
+    step5Title: '데이터 다운로드 및 분석',
+    step5Desc: '대시보드에서 응답 현황을 실시간으로 확인하세요. 수집이 끝나면 KenQ 호환 XLSX 파일로 데이터를 다운로드하여, 별도의 수동 입력 없이 바로 요인분석을 시작할 수 있습니다. (웹 기반 분석 도구인 KenQ Data Analysis에서 바로 활용 가능합니다.)',
+    ctaBtn: '시작하기',
+    footer: 'KenQ 호환 · 오픈소스 Q 방법론 데이터 수집 도구'
+  }
+};
+
+// ============== ADMIN PAGE LANGUAGE ==============
+const ADMIN_STRINGS = {
+  en: {
+    studiesGuide: '<p style="margin-bottom:6px">This is your researcher dashboard. Here you can create and manage Q methodology studies.</p><p style="margin:0">Click <strong>"+ New Study"</strong> to create a new study. Your existing studies are listed below. Click on any study to modify its settings or view collected data.</p>',
+    tabGuide: '<strong>Study Setup</strong>: Configure your study and manage participant links &nbsp;|&nbsp; <strong>Data Management</strong>: View collected responses and export data',
+    dashboardGuide: '<p style="margin:0">Your study setup is complete. Review the summary below and copy the participant links to distribute. You can check response status in real time under the <strong>"Data Management"</strong> tab above.</p>',
+    linksGuide: 'Set the number of participants and click "Update" to generate a unique link for each one. Click "Copy All Links" to copy all links at once, then send them to participants via email or messaging apps.',
+    step1Guide: 'Enter your study\'s basic information. <strong>Project Name</strong> is the study title. <strong>ID Prefix</strong> is used when generating participant links (e.g., P → P01, P02...). Study Description and Central Question will be shown to participants on the sorting screen.',
+    step1DescHint: 'A description of the study shown to respondents on the first screen.',
+    step1CqHint: 'A central question displayed at the top of the screen throughout the Q-sort process.',
+    step1ConfHint: 'Confidentiality notice or instructions shown to respondents on the first screen.',
+    step2Guide: 'Select the distribution grid for your Q-sort. Choose one of the commonly used structures below, or select "Custom" to design your own.',
+    step2PresetLabel: 'Select a Structure',
+    step2CustomSub: 'Fine-tune',
+    step2CustomDesc: 'Design your own',
+    step2CustomWarning: '<strong>Note:</strong> The distribution grid must form an <strong>inverted triangle shape, with the most cards in the center (score 0) and fewer cards toward both ends</strong>. If this shape is not maintained, the statistical validity of your Q-sort results may be compromised.',
+    step3Guide: 'Enter the statements (Q-statements) that participants will sort. Paste them into the text box <strong>one per line</strong> and click "Load Statements," or add them one by one using the input field below. The number of statements must exactly match the total card count set in Step 2.',
+    step4Guide: 'Add demographic questions for participants to answer before starting the Q-sort <strong>(optional but recommended)</strong>. To interpret which types of people belong to each viewpoint group after factor analysis, it is helpful to collect demographic information such as gender, age, education level, occupation, and affiliation. Question types include text input, number input, dropdown, and radio buttons. To skip this step, simply click "Next" without adding any questions.',
+    step5Guide: 'Review all the settings you have entered below. If everything looks correct, click <strong>"Save Study"</strong>. You can always come back and edit your study later using the "Edit Study" button.',
+    dataGuide: '<p style="margin:0">Participant responses are collected here in real time. Click <strong>"Export Q-Sort (KenQ)"</strong> to download a KenQ-compatible XLSX file. Demographic data can be downloaded separately via <strong>"Export Respondent Info"</strong>.</p>',
+  },
+  ko: {
+    studiesGuide: '<p style="margin-bottom:6px">이곳은 연구자 대시보드입니다. 여기서 Q 방법론 연구를 생성하고 관리할 수 있습니다.</p><p style="margin:0"><strong>"+ New Study"</strong>를 클릭하면 새로운 연구를 만들 수 있습니다. 이미 만든 연구는 아래 목록에서 확인하고, 클릭하면 설정 변경이나 데이터 확인이 가능합니다.</p>',
+    tabGuide: '<strong>Study Setup</strong>: 연구 설정 및 참여자 링크 관리 &nbsp;|&nbsp; <strong>Data Management</strong>: 수집된 응답 확인 및 데이터 내보내기',
+    dashboardGuide: '<p style="margin:0">연구 설정이 완료되었습니다. 아래에서 설정 요약을 확인하고, 참여자에게 보낼 링크를 복사하세요. 응답 현황은 상단의 <strong>"Data Management"</strong> 탭에서 실시간으로 확인하고 내보낼 수 있습니다.</p>',
+    linksGuide: '참여자 수를 설정한 뒤 "Update"를 클릭하면 각 참여자별 고유 링크가 생성됩니다. "Copy All Links"를 클릭하여 모든 링크를 한 번에 복사한 후, 이메일이나 메신저로 참여자에게 전달하세요.',
+    step1Guide: '연구의 기본 정보를 입력합니다. <strong>Project Name</strong>은 연구 제목이며, <strong>ID Prefix</strong>는 참가자 링크 생성 시 사용됩니다 (예: P → P01, P02...). Study Description과 Central Question은 참여자가 분류 화면에서 볼 수 있는 안내 문구입니다.',
+    step1DescHint: '응답자에게 보여줄 연구 설명을 입력하세요. 첫 화면에 표시됩니다.',
+    step1CqHint: 'Q 분류 중 화면 상단에 계속 표시될 중심 질문을 입력하세요.',
+    step1ConfHint: '유의사항이나 기밀 관련 안내문을 입력하세요. 첫 화면에 표시됩니다.',
+    step2Guide: 'Q 분류에서 사용할 분포 격자를 선택하세요. 자주 사용되는 구조를 아래에서 바로 선택하거나, "Custom (미세 조정)"으로 직접 설계할 수 있습니다.',
+    step2PresetLabel: '구조 선택',
+    step2CustomSub: '미세 조정',
+    step2CustomDesc: '직접 설계',
+    step2CustomWarning: '<strong>주의:</strong> 분포 격자는 반드시 <strong>가운데(0점)가 가장 많고, 양 끝으로 갈수록 적어지는 역삼각형 모양</strong>이어야 합니다. 이 형태가 되지 않으면 Q 분류 결과의 통계적 타당성이 떨어질 수 있습니다.',
+    step3Guide: '참여자가 분류할 진술문(Q-statement)을 입력합니다. 텍스트 박스에 <strong>한 줄에 하나씩</strong> 붙여넣고 "Load Statements"를 클릭하거나, 아래 입력란에서 하나씩 추가할 수 있습니다. 진술문 수는 Step 2에서 설정한 총 카드 수와 반드시 일치해야 합니다.',
+    step4Guide: '참여자가 Q 분류를 시작하기 전에 답할 인구통계 질문을 추가합니다 <strong>(선택사항이지만 권장)</strong>. 요인분석 후 각 관점 그룹에 어떤 특성의 사람들이 속해 있는지 해석하려면, 성별·나이·교육 수준·직업·소속 등의 인구통계 정보를 함께 수집하는 것이 좋습니다. 질문 유형은 텍스트 입력, 숫자 입력, 드롭다운 선택, 라디오 버튼 중 선택할 수 있습니다. 건너뛰려면 아무것도 추가하지 않고 "Next"를 클릭하세요.',
+    step5Guide: '아래에서 지금까지 입력한 설정을 최종 확인하세요. 문제가 없으면 <strong>"Save Study"</strong>를 클릭합니다. 저장 후에도 "Edit Study" 버튼으로 언제든 수정할 수 있습니다.',
+    dataGuide: '<p style="margin:0">참여자들의 응답이 실시간으로 이곳에 수집됩니다. <strong>"Export Q-Sort (KenQ)"</strong>를 클릭하면 KenQ에서 바로 열 수 있는 XLSX 파일이 다운로드됩니다. 인구통계 데이터는 <strong>"Export Respondent Info"</strong>로 별도 다운로드할 수 있습니다.</p>',
+  }
+};
+
+let adminLang = localStorage.getItem('qmethod_lang') || 'ko';
+
+function applyAdminLang(lang) {
+  adminLang = lang || 'ko';
+  localStorage.setItem('qmethod_lang', adminLang);
+  const s = ADMIN_STRINGS[adminLang] || ADMIN_STRINGS.en;
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('admin-studies-guide', s.studiesGuide);
+  set('admin-tab-guide', s.tabGuide);
+  set('admin-dashboard-guide', s.dashboardGuide);
+  set('admin-links-guide', s.linksGuide);
+  set('admin-step1-guide', s.step1Guide);
+  set('admin-step1-desc-hint', s.step1DescHint);
+  set('admin-step1-cq-hint', s.step1CqHint);
+  set('admin-step1-conf-hint', s.step1ConfHint);
+  set('admin-step2-guide', s.step2Guide);
+  set('admin-step2-preset-label', s.step2PresetLabel);
+  set('preset-custom-sub', s.step2CustomSub);
+  set('preset-custom-desc', s.step2CustomDesc);
+  set('admin-step2-custom-warning', s.step2CustomWarning);
+  set('admin-step3-guide', s.step3Guide);
+  set('admin-step4-guide', s.step4Guide);
+  set('admin-step5-guide', s.step5Guide);
+  set('admin-data-guide', s.dataGuide);
+  // Update all toggle buttons across pages
+  document.querySelectorAll('.admin-lang-btn').forEach(btn => {
+    const isEn = btn.id.endsWith('-en');
+    btn.classList.toggle('active', isEn ? adminLang === 'en' : adminLang === 'ko');
+  });
+  // Sync homepage toggle if visible
+  const homeBtnEn = document.getElementById('lang-btn-en');
+  const homeBtnKo = document.getElementById('lang-btn-ko');
+  if (homeBtnEn) homeBtnEn.classList.toggle('active', adminLang === 'en');
+  if (homeBtnKo) homeBtnKo.classList.toggle('active', adminLang === 'ko');
+}
+
+function setAdminLang(lang) {
+  applyAdminLang(lang);
+  // Also update homepage strings if needed
+  const s = HOME_STRINGS[lang] || HOME_STRINGS.en;
+  const setEl = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  setEl('home-signin-btn', s.signIn);
+  setEl('home-title', s.title);
+  setEl('home-subtitle', s.subtitle);
+  setEl('home-what-title', s.whatTitle);
+  setEl('home-what-desc', s.whatDesc);
+  setEl('home-card1-title', s.card1Title);
+  setEl('home-card1-desc', s.card1Desc);
+  setEl('home-card2-title', s.card2Title);
+  setEl('home-card2-desc', s.card2Desc);
+  setEl('home-card3-title', s.card3Title);
+  setEl('home-card3-desc', s.card3Desc);
+  setEl('home-how-title', s.howTitle);
+  setEl('home-how-desc', s.howDesc);
+  setEl('home-step1-title', s.step1Title);
+  setEl('home-step1-desc', s.step1Desc);
+  setEl('home-step2-title', s.step2Title);
+  setEl('home-step2-desc', s.step2Desc);
+  setEl('home-step3-title', s.step3Title);
+  setEl('home-step3-desc', s.step3Desc);
+  setEl('home-step4-title', s.step4Title);
+  setEl('home-step4-desc', s.step4Desc);
+  setEl('home-step5-title', s.step5Title);
+  setEl('home-step5-desc', s.step5Desc);
+  setEl('home-cta-btn', s.ctaBtn);
+  setEl('home-footer', s.footer);
+}
+
+function switchHomeLang(lang) {
+  const s = HOME_STRINGS[lang] || HOME_STRINGS.en;
+  document.getElementById('home-signin-btn').textContent = s.signIn;
+  document.getElementById('home-title').textContent = s.title;
+  document.getElementById('home-subtitle').textContent = s.subtitle;
+  document.getElementById('home-what-title').textContent = s.whatTitle;
+  document.getElementById('home-what-desc').textContent = s.whatDesc;
+  document.getElementById('home-card1-title').textContent = s.card1Title;
+  document.getElementById('home-card1-desc').textContent = s.card1Desc;
+  document.getElementById('home-card2-title').textContent = s.card2Title;
+  document.getElementById('home-card2-desc').textContent = s.card2Desc;
+  document.getElementById('home-card3-title').textContent = s.card3Title;
+  document.getElementById('home-card3-desc').textContent = s.card3Desc;
+  document.getElementById('home-how-title').textContent = s.howTitle;
+  document.getElementById('home-how-desc').textContent = s.howDesc;
+  document.getElementById('home-step1-title').textContent = s.step1Title;
+  document.getElementById('home-step1-desc').textContent = s.step1Desc;
+  document.getElementById('home-step2-title').textContent = s.step2Title;
+  document.getElementById('home-step2-desc').textContent = s.step2Desc;
+  document.getElementById('home-step3-title').textContent = s.step3Title;
+  document.getElementById('home-step3-desc').textContent = s.step3Desc;
+  document.getElementById('home-step4-title').textContent = s.step4Title;
+  document.getElementById('home-step4-desc').textContent = s.step4Desc;
+  document.getElementById('home-step5-title').textContent = s.step5Title;
+  document.getElementById('home-step5-desc').textContent = s.step5Desc;
+  document.getElementById('home-cta-btn').textContent = s.ctaBtn;
+  document.getElementById('home-footer').textContent = s.footer;
+  // Toggle active button
+  document.getElementById('lang-btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-btn-ko').classList.toggle('active', lang === 'ko');
+  // Sync all language systems
+  if (lang === 'ko') currentLang = 'ko';
+  applyAdminLang(lang);
 }
 
 function switchLanguage(lang) {
