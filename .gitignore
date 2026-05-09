@@ -1,3 +1,8 @@
 node_modules/
 *.Zone.Identifier
 .claude/
+data.json
+*.tmp:RVContext
+*.pdf
+*.docx
+*.py
