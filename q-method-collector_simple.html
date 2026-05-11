@@ -198,10 +198,12 @@ th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spa
   .home-topbar { padding: 0 16px; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
-<div class="site-logo"><img src="download.png" alt="Team Sailers"></div>
+<div class="site-logo"><img src="/download.png" alt="Team Sailers"></div>
 
 <!-- HOME PAGE -->
 <div id="page-home" class="hidden">
@@ -734,32 +736,185 @@ let presortData = { disagree: [], neutral: [], agree: [] };
 let presortIdx = 0;
 let presortOrder = [];
 
+// ============== SUPABASE CONFIG ==============
+// Fill in your Supabase project URL and anon (public) key.
+// anon key is safe to expose - RLS policies protect the data.
+const SUPABASE_URL = 'https://iswlswdyqwhhndzuzwfc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_XsVkyUnCo-2FgFSbSdvuqw_AgN0gbk1';
+const AUTH_DOMAIN = '@qsailors.local'; // virtual email domain to bridge username UI ↔ Supabase Auth
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const toEmail = (u) => `${String(u).toLowerCase()}${AUTH_DOMAIN}`;
+const fromEmail = (e) => e ? e.replace(AUTH_DOMAIN, '') : null;
+let _responseCache = {}; // study_id → array of response row ids (in fetch order) for index-based deletes
+
 // ============== API HELPERS ==============
+// Drop-in replacement for the original fetch-based api(). Same signature, same return shapes,
+// same error messages. Existing call sites in this file are not modified.
 async function api(method, apiPath, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(BASE + apiPath, opts);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || res.statusText);
+  const [pathOnly] = apiPath.split('?');
+  const parts = pathOnly.split('/').filter(Boolean); // ['api', ...]
+  const p = parts.slice(1); // drop 'api'
+
+  // ---- AUTH ----
+  if (p[0] === 'login' && method === 'POST') {
+    if (!body?.username || !body?.password) throw new Error('Username and password required');
+    const { error } = await sb.auth.signInWithPassword({ email: toEmail(body.username), password: body.password });
+    if (error) {
+      const msg = /invalid login credentials|invalid_credentials/i.test(error.message)
+        ? 'Invalid username or password' : error.message;
+      throw new Error(msg);
+    }
+    return { ok: true, username: body.username };
   }
-  return res.json();
+  if (p[0] === 'register' && method === 'POST') {
+    if (!body?.username || !body?.password) throw new Error('Username and password required');
+    if (body.username.length < 2) throw new Error('Username must be at least 2 characters');
+    if (body.password.length < 4) throw new Error('Password must be at least 4 characters');
+    const { error, data } = await sb.auth.signUp({
+      email: toEmail(body.username), password: body.password,
+      options: { data: { username: body.username } }
+    });
+    if (error) {
+      const msg = /already (registered|exists|been registered)|user already/i.test(error.message)
+        ? 'Username already exists' : error.message;
+      throw new Error(msg);
+    }
+    // Preserve original UX: register does NOT auto-login; user must click Login explicitly.
+    if (data?.session) { try { await sb.auth.signOut(); } catch(_) {} }
+    return { ok: true, username: body.username };
+  }
+
+  // ---- STUDIES ----
+  if (p[0] === 'studies' && p.length === 1) {
+    if (method === 'GET') {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      const { data: rows, error } = await sb.from('studies')
+        .select('id, project_name, config, created_at')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) throw new Error(error.message);
+      const ids = rows.map(s => s.id);
+      const counts = {};
+      if (ids.length) {
+        const { data: rsp, error: rerr } = await sb.from('responses').select('study_id').in('study_id', ids);
+        if (rerr) throw new Error(rerr.message);
+        (rsp || []).forEach(r => { counts[r.study_id] = (counts[r.study_id] || 0) + 1; });
+      }
+      return rows.map(s => ({
+        id: s.id,
+        projectName: s.config?.projectName || s.project_name || '(untitled)',
+        statementsCount: s.config?.statements?.length || 0,
+        responsesCount: counts[s.id] || 0,
+        createdAt: s.created_at
+      }));
+    }
+    if (method === 'POST') {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      const { data, error } = await sb.from('studies').insert({ owner_id: user.id }).select('id').single();
+      if (error) throw new Error(error.message);
+      return { ok: true, id: data.id };
+    }
+  }
+  if (p[0] === 'studies' && p.length === 2 && method === 'DELETE') {
+    const { error } = await sb.from('studies').delete().eq('id', p[1]);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  }
+
+  // ---- CONFIG ----
+  if (p[0] === 'studies' && p[2] === 'config' && p.length === 3) {
+    const id = p[1];
+    if (method === 'GET') {
+      const { data, error } = await sb.from('studies').select('config').eq('id', id).maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Study not found');
+      return data.config || null;
+    }
+    if (method === 'POST') {
+      const { error } = await sb.from('studies')
+        .update({ config: body, project_name: body?.projectName || null })
+        .eq('id', id);
+      if (error) throw new Error(error.message);
+      return { ok: true };
+    }
+  }
+
+  // ---- RESPONSES ----
+  if (p[0] === 'studies' && p[2] === 'responses' && p.length === 3) {
+    const id = p[1];
+    if (method === 'GET') {
+      const { data, error } = await sb.from('responses').select('*')
+        .eq('study_id', id).order('timestamp', { ascending: true });
+      if (error) throw new Error(error.message);
+      _responseCache[id] = (data || []).map(r => r.id);
+      return (data || []).map(r => ({
+        participantId: r.participant_id,
+        timestamp: r.timestamp,
+        scores: r.scores,
+        demographics: r.demographics || {}
+      }));
+    }
+    if (method === 'POST') {
+      const { error } = await sb.from('responses').insert({
+        study_id: id,
+        participant_id: body.participantId,
+        scores: body.scores,
+        demographics: body.demographics || {},
+        timestamp: body.timestamp || new Date().toISOString()
+      });
+      if (error) {
+        if (error.code === '23505') throw new Error('Participant ID already exists');
+        throw new Error(error.message);
+      }
+      return { ok: true };
+    }
+    if (method === 'DELETE') {
+      const { error } = await sb.from('responses').delete().eq('study_id', id);
+      if (error) throw new Error(error.message);
+      _responseCache[id] = [];
+      return { ok: true };
+    }
+  }
+  if (p[0] === 'studies' && p[2] === 'responses' && p.length === 4 && method === 'DELETE') {
+    const id = p[1];
+    const idx = parseInt(p[3], 10);
+    if (!_responseCache[id] || !_responseCache[id][idx]) {
+      const { data, error } = await sb.from('responses').select('id')
+        .eq('study_id', id).order('timestamp', { ascending: true });
+      if (error) throw new Error(error.message);
+      _responseCache[id] = (data || []).map(r => r.id);
+    }
+    const rid = _responseCache[id]?.[idx];
+    if (!rid) throw new Error('Not found');
+    const { error } = await sb.from('responses').delete().eq('id', rid);
+    if (error) throw new Error(error.message);
+    _responseCache[id].splice(idx, 1);
+    return { ok: true };
+  }
+
+  throw new Error('Unknown API endpoint: ' + method + ' ' + apiPath);
 }
 
 // ============== AUTH ==============
-function loadSession() {
-  const saved = localStorage.getItem('qmethod_user');
-  if (saved) currentUser = saved;
+async function loadSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user.user_metadata?.username || fromEmail(session.user.email);
+  } else {
+    currentUser = null;
+  }
 }
 
 function saveSession(username) {
+  // Supabase SDK auto-persists the session to localStorage; this only updates the in-memory display name.
   currentUser = username;
-  localStorage.setItem('qmethod_user', username);
 }
 
-function clearSession() {
+async function clearSession() {
   currentUser = null;
-  localStorage.removeItem('qmethod_user');
+  try { await sb.auth.signOut(); } catch(_) {}
 }
 
 async function doLogin() {
@@ -796,8 +951,8 @@ async function doRegister() {
   }
 }
 
-function doLogout() {
-  clearSession();
+async function doLogout() {
+  await clearSession();
   showPage('page-home');
 }
 
@@ -877,7 +1032,7 @@ function goTo(page) {
 }
 
 async function initApp() {
-  loadSession();
+  await loadSession();
   // Apply saved language to all pages
   switchHomeLang(adminLang);
   const parts = parsePath();
@@ -1406,12 +1561,58 @@ async function clearAllResponses() {
 }
 
 // ============== KENQ EXPORT ==============
-function exportXLSX() {
-  window.location.href = BASE + '/api/studies/' + currentStudyId + '/export';
+// Browser-side port of server.js:184-234 - sheet names, order, and contents must match exactly
+// so that KenQ tooling continues to read the file the same way.
+async function exportXLSX() {
+  try {
+    const cfg = await api('GET', '/api/studies/' + currentStudyId + '/config');
+    if (!cfg) { alert('No config'); return; }
+    const responses = await api('GET', '/api/studies/' + currentStudyId + '/responses');
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([[cfg.projectName || 'Q Study']]), 'name');
+
+    const stmtData = [['Number', 'Statements']];
+    cfg.statements.forEach((s, i) => stmtData.push([i + 1, s]));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(stmtData), 'statements');
+
+    const scores = Object.keys(cfg.pattern).map(Number).sort((a, b) => a - b);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([scores, scores.map(s => cfg.pattern[s])]), 'pattern');
+
+    const sortsData = responses.map(r => [r.participantId, ...r.scores]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sortsData.length ? sortsData : [[]]), 'sorts');
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Version'], [2]]), 'version');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Type'], [2]]), 'type');
+
+    const filename = (cfg.projectName || 'qstudy').replace(/[^a-zA-Z0-9_-]/g, '_') + '_kenq.xlsx';
+    XLSX.writeFile(wb, filename);
+  } catch (e) {
+    alert('Export failed: ' + e.message);
+  }
 }
 
-function exportDemographics() {
-  window.location.href = BASE + '/api/studies/' + currentStudyId + '/export-demographics';
+async function exportDemographics() {
+  try {
+    const cfg = await api('GET', '/api/studies/' + currentStudyId + '/config');
+    if (!cfg) { alert('No config'); return; }
+    const responses = await api('GET', '/api/studies/' + currentStudyId + '/responses');
+
+    const questions = cfg.demoQuestions || [];
+    const headers = ['Participant ID', 'Timestamp', ...questions.map(q => q.text)];
+    const rows = responses.map(r => {
+      const demo = r.demographics || {};
+      return [r.participantId, r.timestamp || '', ...questions.map(q => demo[q.text] || '')];
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...rows]), 'Respondent Info');
+
+    const filename = (cfg.projectName || 'qstudy').replace(/[^a-zA-Z0-9_-]/g, '_') + '_respondent_info.xlsx';
+    XLSX.writeFile(wb, filename);
+  } catch (e) {
+    alert('Export failed: ' + e.message);
+  }
 }
 
 // ============== TRANSLATIONS ==============

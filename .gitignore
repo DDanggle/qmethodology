@@ -2,6 +2,8 @@ node_modules/
 *.Zone.Identifier
 .claude/
 data.json
+.env
+.env.local
 *.tmp:RVContext
 *.pdf
 *.docx
