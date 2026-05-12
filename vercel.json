@@ -6,8 +6,6 @@
   ],
   "rewrites": [
     { "source": "/qsailors", "destination": "/q-method-collector_simple.html" },
-    { "source": "/qsailors/admin", "destination": "/q-method-collector_simple.html" },
-    { "source": "/qsailors/sort/:studyId", "destination": "/q-method-collector_simple.html" },
-    { "source": "/qsailors/sort/:studyId/:pid", "destination": "/q-method-collector_simple.html" }
+    { "source": "/qsailors/:path*", "destination": "/q-method-collector_simple.html" }
   ]
 }
