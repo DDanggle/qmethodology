@@ -1,9 +1,4 @@
 {
-  "cleanUrls": false,
-  "trailingSlash": false,
-  "redirects": [
-    { "source": "/", "destination": "/qsailors", "permanent": false }
-  ],
   "rewrites": [
     { "source": "/qsailors", "destination": "/q-method-collector_simple.html" },
     { "source": "/qsailors/:path*", "destination": "/q-method-collector_simple.html" }
