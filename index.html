@@ -747,6 +747,21 @@ const toEmail = (u) => `${String(u).toLowerCase()}${AUTH_DOMAIN}`;
 const fromEmail = (e) => e ? e.replace(AUTH_DOMAIN, '') : null;
 let _responseCache = {}; // study_id → array of response row ids (in fetch order) for index-based deletes
 
+// ============== AUTH HELPERS ==============
+// Username UI is bridged to Supabase Auth via a virtual email (toEmail). These helpers
+// keep validation and session checks consistent across login / register / api code paths.
+function validateUsername(u) {
+  if (!u || u.length < 2) return 'Username must be at least 2 characters';
+  if (!/^[a-zA-Z0-9._-]+$/.test(u)) return 'Username can only contain letters, numbers, and . _ -';
+  return null;
+}
+
+async function requireUser() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  return session.user;
+}
+
 // ============== API HELPERS ==============
 // Drop-in replacement for the original fetch-based api(). Same signature, same return shapes,
 // same error messages. Existing call sites in this file are not modified.
@@ -757,38 +772,48 @@ async function api(method, apiPath, body) {
 
   // ---- AUTH ----
   if (p[0] === 'login' && method === 'POST') {
-    if (!body?.username || !body?.password) throw new Error('Username and password required');
-    const { error } = await sb.auth.signInWithPassword({ email: toEmail(body.username), password: body.password });
+    const uname = (body?.username || '').trim();
+    if (!uname || !body?.password) throw new Error('Username and password required');
+    const { error } = await sb.auth.signInWithPassword({ email: toEmail(uname), password: body.password });
     if (error) {
-      const msg = /invalid login credentials|invalid_credentials/i.test(error.message)
-        ? 'Invalid username or password' : error.message;
+      let msg = error.message;
+      if (/invalid login credentials|invalid_credentials/i.test(msg)) msg = 'Invalid username or password';
+      else if (/email not confirmed/i.test(msg)) msg = 'Account is not activated. Please contact the administrator.';
+      else if (/rate limit|too many requests/i.test(msg)) msg = 'Too many attempts. Please wait a moment and try again.';
       throw new Error(msg);
     }
-    return { ok: true, username: body.username };
+    return { ok: true, username: uname };
   }
   if (p[0] === 'register' && method === 'POST') {
-    if (!body?.username || !body?.password) throw new Error('Username and password required');
-    if (body.username.length < 2) throw new Error('Username must be at least 2 characters');
-    if (body.password.length < 4) throw new Error('Password must be at least 4 characters');
+    const uname = (body?.username || '').trim();
+    const pw = body?.password || '';
+    if (!uname || !pw) throw new Error('Username and password required');
+    const unameErr = validateUsername(uname);
+    if (unameErr) throw new Error(unameErr);
+    if (pw.length < 6) throw new Error('Password must be at least 6 characters');
     const { error, data } = await sb.auth.signUp({
-      email: toEmail(body.username), password: body.password,
-      options: { data: { username: body.username } }
+      email: toEmail(uname), password: pw,
+      options: { data: { username: uname } }
     });
     if (error) {
-      const msg = /already (registered|exists|been registered)|user already/i.test(error.message)
-        ? 'Username already exists' : error.message;
+      let msg = error.message;
+      if (/already (registered|exists|been registered)|user already/i.test(msg)) msg = 'Username already exists';
+      else if (/rate limit|too many requests/i.test(msg)) msg = 'Too many attempts. Please wait a moment and try again.';
+      else if (/password/i.test(msg)) msg = 'Password must be at least 6 characters';
       throw new Error(msg);
     }
-    // Preserve original UX: register does NOT auto-login; user must click Login explicitly.
-    if (data?.session) { try { await sb.auth.signOut(); } catch(_) {} }
-    return { ok: true, username: body.username };
+    // Supabase anti-enumeration: signing up an existing username returns no error,
+    // just a user object with an empty identities array. Detect and surface it.
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      throw new Error('Username already exists');
+    }
+    return { ok: true, username: uname, session: !!data?.session };
   }
 
   // ---- STUDIES ----
   if (p[0] === 'studies' && p.length === 1) {
     if (method === 'GET') {
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const user = await requireUser();
       const { data: rows, error } = await sb.from('studies')
         .select('id, project_name, config, created_at')
         .eq('owner_id', user.id)
@@ -810,8 +835,7 @@ async function api(method, apiPath, body) {
       }));
     }
     if (method === 'POST') {
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const user = await requireUser();
       const { data, error } = await sb.from('studies').insert({ owner_id: user.id }).select('id').single();
       if (error) throw new Error(error.message);
       return { ok: true, id: data.id };
@@ -900,16 +924,15 @@ async function api(method, apiPath, body) {
 // ============== AUTH ==============
 async function loadSession() {
   const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user.user_metadata?.username || fromEmail(session.user.email);
-  } else {
-    currentUser = null;
-  }
+  currentUser = session?.user
+    ? (session.user.user_metadata?.username || fromEmail(session.user.email))
+    : null;
 }
 
-function saveSession(username) {
-  // Supabase SDK auto-persists the session to localStorage; this only updates the in-memory display name.
-  currentUser = username;
+// After a successful login/register the Supabase SDK has already persisted the
+// session; re-read it so currentUser always reflects the real session identity.
+async function saveSession() {
+  await loadSession();
 }
 
 async function clearSession() {
@@ -921,11 +944,13 @@ async function doLogin() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
+  const msgEl = document.getElementById('login-msg');
   errEl.classList.add('hidden');
+  if (msgEl) msgEl.classList.add('hidden');
   if (!username || !password) { errEl.textContent = 'Please enter username and password.'; errEl.classList.remove('hidden'); return; }
   try {
     await api('POST', '/api/login', { username, password });
-    saveSession(username);
+    await saveSession();
     showStudies();
   } catch(e) {
     errEl.textContent = e.message;
@@ -942,9 +967,15 @@ async function doRegister() {
   msgEl.classList.add('hidden');
   if (!username || !password) { errEl.textContent = 'Please enter username and password.'; errEl.classList.remove('hidden'); return; }
   try {
-    await api('POST', '/api/register', { username, password });
-    msgEl.textContent = 'Account created! You can now login.';
-    msgEl.classList.remove('hidden');
+    const res = await api('POST', '/api/register', { username, password });
+    if (res.session) {
+      // Email confirmation is off → signUp already created a session, so log in directly.
+      await saveSession();
+      showStudies();
+    } else {
+      msgEl.textContent = 'Account created! You can now login.';
+      msgEl.classList.remove('hidden');
+    }
   } catch(e) {
     errEl.textContent = e.message;
     errEl.classList.remove('hidden');
